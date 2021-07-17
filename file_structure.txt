@@ -1,0 +1,19 @@
+emp_info ---
+          emp_info --
+                    --__init__.py -- it is mostly used for coverting folder into python package
+                    -- setting.py -- file where we provide all the settings related to project.
+                    -- urls.py    -- It is for defining the end point of the application..
+                    -- asgi.py --
+                    -- wsgi.py --
+          manage.py -- main file for Running anything in django application
+
+
+          emps --
+               --__init__.py -- it is mostly used for coverting folder into python package
+               -- admin.py -- Everything related to admin interface changes should be defined here.
+               -- models.py -- It just for making the app creation.
+               -- tests.py -- Everything related to DB operations.
+               -- views.py -- its for writing the testcases..
+               -- views.py -- complete application logic should be written under views..
+               -- urls.py -- it is used for defining app level urls.
+

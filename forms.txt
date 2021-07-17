@@ -1,0 +1,4 @@
+there are 3 ways of forms creation in Django.
+    # 1) Model forms
+    # 2) Normal forms
+    # 3) Html forms

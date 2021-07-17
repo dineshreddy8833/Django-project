@@ -1,0 +1,10 @@
+{% extends 'main.html' %}
+{% block content %}
+<form action="" method="POST">
+{% csrf_token %}
+  <label for="email">Email:</label><br>
+  <input type="text" id="email" name="email" value="" required><br>
+  <input type="submit" value="Send OTP"><br>
+  
+</form> 
+{% endblock %}

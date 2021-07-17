@@ -1,0 +1,7 @@
+{% extends 'main.html' %}
+{% block content %}
+{% for ele in object_list  %}
+   <a href="{% url 'get_single_data' ele.id %}">{{ele.name}}</a><br>
+{% endfor %}
+
+{% endblock %}

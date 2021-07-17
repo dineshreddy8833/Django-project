@@ -1,0 +1,22 @@
+# 1) create project:
+    # django-admin startproject project-name
+    # django-admin startproject emp_info
+
+# 2) Running the project:
+    # python manage.py runserver
+
+# 3) creating the App:
+    # python manage.py startapp appname
+
+# 4) Migrating the model changes.
+    # python manage.py migrate.
+
+# 5) creating the superuser.
+    # python manage.py createsuperuser.
+
+# 6) Migrations of the models from django to database.
+    # python manage.py makemigrations.
+
+# 7) Django shell
+    # python manage.py shell
+    

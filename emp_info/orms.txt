@@ -1,0 +1,32 @@
+
+
+# Orms for retreving all the data for the table.
+    Modelname.objects.all()
+    EmpPersonal.objects.all()
+
+# Orms for getting single person details from the table..   
+    Modelname.objects.get(field-name=value-check)
+    EmpPersonal.objects.get(name='kiran')
+
+    If the data is persent with the search specified it will retrive the info, otherwise it will thrown the error.
+
+# Orms for adding the data into the table.
+    variable = Modelname(field1=value1,field2=value2...fieldn=valuen)
+    variable.save()
+
+    Modelname.objects.create(field1=value1,field2=value2...fieldn=valuen)
+
+# fieldlookups:- Adding the extra filtering features..
+
+# updating the data..
+   # update orm query will work only on queryset.
+   
+   # 1st way
+       get_data = EmpPersonal.objects.get(name="dinesh")
+       get_data.address="colombo"
+       get_data.country="srilanka"
+       get_data.save()
+
+    # 2nd way
+       get_data1 = EmpPersonal.objects.filter(name="ramesh")
+       get_data1.update(address="dhaka",country="Bangladesh")

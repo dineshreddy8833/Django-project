@@ -1,0 +1,2 @@
+Database:
+ By default django will have a default database.(sqllite)

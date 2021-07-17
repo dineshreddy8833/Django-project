@@ -1,0 +1,11 @@
+Installation:
+
+# pip install package-name
+# pip list or pip freeze
+# pip uninstall package-name
+
+
+# project -- Its nothing but combination of multiple apps(functionalities).
+# app -- performing the specific functionality..
+
+# once the app is created you have to definitely specify the app name in the settings.py under INSTALLED_APPS list...
