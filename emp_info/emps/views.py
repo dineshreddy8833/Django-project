@@ -204,3 +204,5 @@ class EmpPersonal_Delete(DeleteView):
 
 class EmpPersonal_Details(DetailView):
     model = EmpPersonal
+
+    
