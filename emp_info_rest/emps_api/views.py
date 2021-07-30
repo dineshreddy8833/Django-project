@@ -1,3 +1,4 @@
+from django.db.models import query
 from rest_framework.serializers import Serializer
 from rest_framework.views import APIView
 from emps_api.models import EmpPersonal
@@ -8,7 +9,12 @@ from .models import EmpPersonal
 from django.core import serializers
 from django.contrib.auth.models import User
 from .serializers import Empserializer
-
+from rest_framework.generics import CreateAPIView, DestroyAPIView, ListAPIView, ListCreateAPIView, RetrieveAPIView, RetrieveDestroyAPIView, RetrieveUpdateAPIView, RetrieveUpdateDestroyAPIView, UpdateAPIView
+from django.core.mail import send_mail
+from django.conf import settings
+import random
+from django.shortcuts import redirect, render
+from rest_framework import viewsets
 
 # Create your views here.
 
@@ -143,3 +149,141 @@ class EmpersonalDetailView(APIView):
         emp_data.delete()
         return Response({"message":"user deleted successfully"})
       
+class EmpList_Generic(ListAPIView):
+    queryset = EmpPersonal.objects.all()
+    serializer_class = Empserializer
+
+    # def get_queryset(self):
+    #     data = EmpPersonal.objects.filter(age__gt=30)
+    #     return data
+
+    # def list(self, request):
+    #     queryset = self.get_queryset()
+    #     Serializer = Empserializer(queryset,many=True)
+    #     return Response(Serializer.data)
+
+
+class EmpCreate_Generic(CreateAPIView):
+    queryset = EmpPersonal.objects.all()
+    serializer_class = Empserializer
+
+    def create(self, request):
+        Serializer = self.serializer_class(data=request.data)
+        if Serializer.is_valid():
+             user_data =User(username=Serializer.data.get("name"),email = Serializer.data.get("per_email"),is_active = True,is_staff= True)
+             user_data.set_password(request.data.get("password"))
+             user_data.save()
+             EmpPersonal.objects.create(name=Serializer.data.get("name"),mobile = Serializer.data.get("mobile"),per_email =Serializer.data.get("per_email"),age =Serializer.data.get("age"),address=Serializer.data.get("address"),country=Serializer.data.get("country"),user=user_data)
+             return Response({"message":"Register successfully"})
+             
+        return Response({"message":"validations missing"})
+
+class EmpRetrive_Generic(RetrieveAPIView):
+       lookup_field = "name"
+       queryset = EmpPersonal.objects.all()
+       serializer_class = Empserializer
+
+class EmpUpdate_Generic(UpdateAPIView):
+       lookup_field = "id"
+       queryset = EmpPersonal.objects.all()
+       serializer_class = Empserializer
+
+class EmpDestroy_Generic(DestroyAPIView):
+       lookup_field = "id"
+       queryset = EmpPersonal.objects.all()
+       serializer_class = Empserializer
+
+class EmpListCreate_Generic(ListCreateAPIView):
+    queryset = EmpPersonal.objects.all()
+    serializer_class = Empserializer
+
+    def create(self, request):
+        Serializer = self.serializer_class(data=request.data)
+        if Serializer.is_valid():
+             user_data =User(username=Serializer.data.get("name"),email = Serializer.data.get("per_email"),is_active = True,is_staff= True)
+             user_data.set_password(request.data.get("password"))
+             user_data.save()
+             EmpPersonal.objects.create(name=Serializer.data.get("name"),mobile = Serializer.data.get("mobile"),per_email =Serializer.data.get("per_email"),age =Serializer.data.get("age"),address=Serializer.data.get("address"),country=Serializer.data.get("country"),user=user_data)
+             return Response({"message":"Register successfully"})
+        return Response({"message":"validations missing"})
+
+class EmpRetrive_Update(RetrieveUpdateAPIView):
+    lookup_field = "name"
+    queryset = EmpPersonal.objects.all()
+    serializer_class = Empserializer
+
+class EmpRetrive_Destroy(RetrieveDestroyAPIView):
+    lookup_field = "name"
+    queryset = EmpPersonal.objects.all()
+    serializer_class = Empserializer
+    def destroy(self, request, *args, **kwargs):
+        print(self.get_object().name)
+        User.objects.get(username=self.get_object().name).delete()
+        # EmpPersonal.objects.get(name=self.get_object().name).delete()
+        return Response({"message":"deleted successfully"})
+
+class EmpRetrive_Update_Delete(RetrieveUpdateDestroyAPIView):
+    lookup_field = "name"
+    queryset = EmpPersonal.objects.all()
+    serializer_class = Empserializer
+
+@api_view(['POST'])
+def user_send_email(request):
+    if request.method == "POST":
+        email = request.data ['email']
+        email_check = User.objects.filter(email=email)
+        if email_check:
+            otp_save  = EmpPersonal.objects.filter(per_email=email)
+            otp = random.randint(1000,9999)
+            save_data = otp_save[0]
+            save_data.otp = str(otp)
+            save_data.save()
+            msg= "Hi {},\n you have requested for a forgot password feature please use the below code for verification {}".format(email_check[0].username,otp)
+            send_mail('password change verification code',msg,settings.EMAIL_HOST_USER ,[email_check[0].email])
+            return redirect('verify_otp')
+        else:
+            return Response({"message":"Emailid Invalid !"})
+    # return render(request,'send_email.html')
+
+@api_view(['POST'])
+def verify_otp(request):
+    if request.method == "POST":
+        gen_otp = request.data['otp']
+        check_otp = EmpPersonal.objects.filter(otp=gen_otp)
+        if check_otp:
+            return redirect('new_password',id=check_otp[0].id)
+        else:
+            return Response({"message":"Emailid invalid!"})
+
+    # return render(request,'verify_otp.html')
+@api_view(['POST'])
+def new_password(request,id):
+    emp_info = EmpPersonal.objects.get(id=id)
+    if request.method == "POST":
+        password = request.data['password']
+        check_email = emp_info.per_email
+        user_data = User.objects.get(email= check_email)
+        user_data.set_password(password)
+        user_data.save()
+    return Response({"message":"password Updated successfully"})
+    
+
+class EmpViewset(viewsets.ModelViewSet):
+    serializer_class = Empserializer
+    queryset = EmpPersonal.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        user_data =User(username=request.data.get("name"),email = request.data.get("per_email"),is_active = True,is_staff= True)
+        user_data.set_password(request.data.get("passsword"))
+        user_data.save()
+        EmpPersonal.objects.create(name=request.data.get("name"),mobile = request.data.get("mobile"),per_email =request.data.get("per_email"),age =request.data.get("age"),address=request.data.get("address"),country=request.data.get("country"),user=user_data)
+        return Response({"message":"employ registered successfully"})
+
+        
+    def destroy(self, request, *args, **kwargs):
+        print(self.get_object().name)
+        User.objects.get(username=self.get_object().name).delete()
+        return Response({"message":"deleted successfully"}) 
+    
+
+        
